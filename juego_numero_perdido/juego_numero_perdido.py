@@ -17,7 +17,7 @@ def juego_numero_perdido():
 
     racha_aciertos = 0
 
-    print("\n--- VERSION BETA: JUEGO DEL NUMERO PERDIDO ---")
+    print("\n--- VERSION BETA 1.1: JUEGO DEL NUMERO PERDIDO ---")
 
     while racha_aciertos < 5:
         pregunta_actual = random.choice(preguntas)
@@ -27,7 +27,13 @@ def juego_numero_perdido():
             f"¿{pregunta_actual['base']} x ___ = {pregunta_actual['resultado']}?"
         )
 
-        respuesta_usuario = int(input("Ingresa tu respuesta: "))
+        try:
+            respuesta_usuario = int(input("Ingresa tu respuesta: "))
+        except ValueError:
+            print(
+                "¡Error! Por favor, ingresa un número o una opción válida.\n"
+            )
+            continue
 
         if respuesta_usuario == pregunta_actual["incognita"]:
             print("¡Bien!\n")
