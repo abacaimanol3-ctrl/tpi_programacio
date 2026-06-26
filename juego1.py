@@ -5,30 +5,81 @@ import random
 pos_x = 2
 pos_y = 2
 
-turnos = 10
+turnos = 6
+
+buf_color = "\033[33m"
+floor = "\033[32m"
+void = "\033[0m"
 
 alto = 5
 ancho = 5
 
-preguntas =["Que tipo de numero sera el resultado?: n * 2 \n 1_par \n 2_impar \n", 
-            "Que tipo de numero sera el resultado?: 3 / 2 \n 1_entero \n 2_decimal \n",
-            "Que tipo de numero sera el resultado?: n<0 \n 1_numero positivo \n 2_numero negativo \n",
-            "esto es verdadero?: -2 < 2 \n 1_verdadero \n 2_falso \n",
-            "que tipo de numero sera el resultado?: -2 * 2 \n 1_positivo \n 2_negativo \n"]
+meta_x = random.randint(11, 22)
+meta_y = random.randint(11, 22)
+
+preguntas =[["Que tipo de numero sera el resultado?: n * 2 \n 1_par \n 2_impar \n", "1"], 
+            ["Que tipo de numero sera el resultado?: 3 / 2 \n 1_entero \n 2_decimal \n", "2"],
+            ["Que tipo de numero sera el resultado?: n<0 \n 1_numero positivo \n 2_numero negativo \n", "2"],
+            ["esto es verdadero?: -2 < 2 \n 1_verdadero \n 2_falso \n", "1"],
+            ["que tipo de numero sera el resultado?: -2 * 2 \n 1_positivo \n 2_negativo \n", "2"]]
 
 
 llave_p_x = 0
 llave_p_y = 0
 
+
+buf = 0
+
+fails = 1
+
+buf_x = 0
+buf_y = 0
+
 llave_n_x = 0
 llave_n_y = 0
 
+def gen_buf():
+    global buf_x, buf_y, buf
+
+    buf = random.randint(0,1)
+
+    if buf == 1:
+        buf_x = random.randint(pos_x-3, pos_x+3)
+        buf_y = random.randint(pos_y-3, pos_y+3)
+
+    if buf_x == pos_x and buf_y == pos_y:
+        gen_buf()
+
+    return buf_x, buf_y
+
+gen_buf()
+
+def questions(q, k):
+    global turnos, alto, ancho, fails
+
+    print(preguntas[q][0])
+    r = input("Ingrese su respuesta: ")
+    
+    if r == preguntas[q][1]:
+        turnos += 7
+        extendMap(k)
+    
+    else:
+        fails -= 0.1
+        turnos *= fails
+
+    gen_buf()
+
 def extendMap(tipo):
     global alto, ancho
+
     if tipo == "p":
         alto += 5
     elif tipo == "n":
         ancho += 5
+
+    gen_key("", "")
+    gen_buf()
 
     draw()
     return alto, ancho
@@ -37,95 +88,47 @@ def extendMap(tipo):
 def puzzle(llave):
     global turnos, alto, ancho
 
-    gen_key()
 
-    pregunta = random.randint(0,5)
-    if pregunta == 1:
-        print(preguntas[0])
-        respuesta = input("Ingrese la respuesta: ")
+    pregunta = random.randint(0,4)
 
-        if respuesta == "1":
-            turnos += 10
-            extendMap(llave)
-
-        elif respuesta == "2":
-            turnos -= 3
-
-        else:
-            print("Respuesta no reconosida")
-
-    if pregunta == 2:
-        print(preguntas[1])
-        respuesta = input("Ingrese la respuesta: ")
-
-        if respuesta == "2":
-            turnos += 10
-            extendMap(llave)
-            
-
-        elif respuesta == "1":
-            turnos -= 3
-
-        else:
-            print("Respuesta no reconosida")
-            
-    if pregunta == 3:
-        print(preguntas[2])
-        respuesta = input("Ingrese la respuesta: ")
-
-        if respuesta == "2":
-            turnos += 10
-            extendMap(llave)
-
-        elif respuesta == "1":
-            turnos -= 3
-
-        else:
-            print("Respuesta no reconosida")
-
-    if pregunta == 4:
-        print(preguntas[3])
-        respuesta = input("Ingrese la respuesta: ")
-
-        if respuesta == "1":
-            turnos += 10
-            extendMap(llave)
-
-        elif respuesta == "2":
-            turnos -= 3
-
-        else:
-            print("Respuesta no reconosida")
-
-    if pregunta == 5:
-        print(preguntas[4])
-        respuesta = input("Ingrese la respuesta: ")
-
-        if respuesta == "2":
-            turnos += 10
-            extendMap(llave)
-
-        elif respuesta == "1":
-            turnos -= 3
-
-        else:
-            print("Respuesta no reconosida")   
+    questions(pregunta, llave)
 
 
-def gen_key():
+def gen_key(referencia1, referencia2):
     global llave_p_x, llave_p_y, llave_n_x, llave_n_y
 
-    llave_p_x = random.randint(1,ancho-3)
-    llave_p_y = random.randint(alto-3,alto-1)
+    if referencia1 == "" and referencia2 == "":
+        llave_p_x = random.randint(1,ancho-3)
+        llave_p_y = random.randint(alto-3,alto-1)
 
-    llave_n_x = random.randint(ancho-3, ancho-1)
-    llave_n_y = random.randint(1, alto-3)
+        llave_n_x = random.randint(ancho-3, ancho-1)
+        llave_n_y = random.randint(1, alto-3)
+    
+    else:
+        llave_p_x = random.randint(referencia1-6, referencia1+6)
+        llave_p_y = random.randint(referencia2-6, referencia2+6)
+
+        llave_n_x = random.randint(referencia1-6, referencia1+6)
+        llave_n_y = random.randint(referencia2-6, referencia2+6)
+
+        if (llave_n_x == pos_x and llave_n_y == pos_y) or (llave_p_x == pos_x and llave_p_y == pos_y):
+            gen_key(referencia1, referencia2)
+            
+            return llave_p_x, llave_p_y
+
+    if (llave_n_x == pos_x and llave_n_y == pos_y) or (llave_p_x == pos_x and llave_p_y == pos_y):
+        gen_key("", "")
 
     return llave_p_x, llave_p_y
 
 
 def draw():
+    global turnos
+
     os.system("cls")
+    turnos -= 1
+
+    print("Te quedan: ", turnos, "turnos")
 
     for i in range(0,alto):
         for j in range(0,ancho):
@@ -135,8 +138,15 @@ def draw():
 
                 elif j == llave_n_x and i == llave_n_y:
                     print("-", end="")
+
+                elif j == meta_x and i == meta_y:
+                    print("W", end="")
+
+                elif j == buf_x and i == buf_y:
+                    print(f"{buf_color}B{void}", end="")
+
                 else:
-                    print(".", end="")
+                    print(f"{floor}.{void}", end="")
 
 
             else:
@@ -146,9 +156,9 @@ def draw():
 
 
 def Init():
-    global pos_x, pos_y
+    global pos_x, pos_y, turnos
 
-    gen_key()
+    gen_key("", "")
     draw()
 
     while True:
@@ -179,6 +189,24 @@ def Init():
 
         elif pos_x == llave_n_x and pos_y == llave_n_y:
             puzzle("n")
+
+        elif pos_x == buf_x and pos_y == buf_y:
+            print("que tipo de ventaja quieres?: \n 1_traer las llaves cerca \n 2_mas turnos")
+            op = input("Ingresa tu respuesta aqui: ")
+
+            if op == "1":
+                gen_key(pos_x, pos_y)
+                gen_buf()
+                draw()
+            
+            elif op == "2":
+                turnos += 10
+                gen_buf()
+                draw()
+
+        if turnos <= 0:
+            print("Juego acabado")
+            break
 
 
 
