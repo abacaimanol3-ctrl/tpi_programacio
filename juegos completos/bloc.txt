@@ -1,0 +1,76 @@
+def guardar_puntaje(nombre, puntos):
+    archivo = open("puntajes_palabras.txt", "a", encoding="utf-8")
+    linea = nombre + " - " + str(puntos) + "\n"
+    archivo.write(linea)
+    archivo.close()
+
+
+
+def ver_puntajes():
+    try:
+        archivo = open("puntajes_palabras.txt", "r", encoding="utf-8")
+        print("\n===== PUNTAJES GUARDADOS =====")
+        contenido = archivo.read()
+        print(contenido)
+        archivo.close()
+    except FileNotFoundError:
+        print("Todavía no hay puntajes guardados.")
+
+
+
+def ranking_jugadores():
+    try:
+        archivo = open("puntajes_palabras.txt", "r", encoding="utf-8")
+        lineas = archivo.readlines()
+        archivo.close()
+
+        ranking = []
+        for linea in lineas:
+            linea_limpia = linea.strip()
+            if linea_limpia == "":
+                continue
+            datos = linea_limpia.split(" - ")
+            if len(datos) == 2:
+                nombre = datos[0]
+                puntos = int(datos[1])
+                ranking.append([nombre, puntos])
+
+        
+        largo = len(ranking)
+        for i in range(largo):
+            for j in range(i + 1, largo):
+                jugador_actual = ranking[i]
+                jugador_siguiente = ranking[j]
+                if jugador_actual[1] < jugador_siguiente[1]:
+                    temporal = ranking[i]
+                    ranking[i] = ranking[j]
+                    ranking[j] = temporal
+
+        print("\n===== RANKING =====")
+        puesto = 1
+        for jugador in ranking:
+            nombre_j = jugador[0]
+            puntos_j = jugador[1]
+            print(str(puesto) + ".", nombre_j, "-", str(puntos_j), "puntos")
+            puesto = puesto + 1
+
+    except FileNotFoundError:
+        print("No hay datos para mostrar.")
+
+
+
+def adivina_palabra(nombre):
+    palabras = [
+        ["perro", "Animal que ladra"],
+        ["escuela", "Lugar donde estudias"],
+        ["argentina", "País donde vivimos"],
+        ["computadora", "Máquina para programar"],
+        ["futbol", "Deporte muy popular"],
+        ["gato", "Animal que maúlla"],
+        ["lapiz", "Se usa para escribir"],
+        ["invierno", "Estación más fría del año"],
+        ["biblioteca", "Lugar donde hay libros"],
+        ["montaña", "Elevación natural del terreno"]
+    ]
+
+    print("\n===== ADIVINA LA PALABRA =====")
