@@ -1,22 +1,23 @@
+﻿# =================================================================
+# JUEGO: ADIVINA LA PALABRA
+# DESARROLLADOR: JOEL CEBALLOS
+# =================================================================
+
 def guardar_puntaje(nombre, puntos):
     archivo = open("puntajes_palabras.txt", "a", encoding="utf-8")
     linea = nombre + " - " + str(puntos) + "\n"
     archivo.write(linea)
     archivo.close()
 
-
-
 def ver_puntajes():
     try:
         archivo = open("puntajes_palabras.txt", "r", encoding="utf-8")
-        print("\n===== PUNTAJES GUARDADOS =====")
+        print("\n===== PUNTAJES GUARDADOS (PALABRAS) =====")
         contenido = archivo.read()
         print(contenido)
         archivo.close()
     except FileNotFoundError:
         print("Todavía no hay puntajes guardados.")
-
-
 
 def ranking_jugadores():
     try:
@@ -35,31 +36,23 @@ def ranking_jugadores():
                 puntos = int(datos[1])
                 ranking.append([nombre, puntos])
 
-        
         largo = len(ranking)
         for i in range(largo):
             for j in range(i + 1, largo):
-                jugador_actual = ranking[i]
-                jugador_siguiente = ranking[j]
-                if jugador_actual[1] < jugador_siguiente[1]:
+                if ranking[i][1] < ranking[j][1]:
                     temporal = ranking[i]
                     ranking[i] = ranking[j]
                     ranking[j] = temporal
 
-        print("\n===== RANKING =====")
+        print("\n===== RANKING (PALABRAS) =====")
         puesto = 1
         for jugador in ranking:
-            nombre_j = jugador[0]
-            puntos_j = jugador[1]
-            print(str(puesto) + ".", nombre_j, "-", str(puntos_j), "puntos")
-            puesto = puesto + 1
-
+            print(str(puesto) + ".", jugador[0], "-", str(jugador[1]), "puntos")
+            puesto += 1
     except FileNotFoundError:
         print("No hay datos para mostrar.")
 
-
-
-def adivina_palabra(nombre):
+def Init(nombre):
     palabras = [
         ["perro", "Animal que ladra"],
         ["escuela", "Lugar donde estudias"],
@@ -74,8 +67,7 @@ def adivina_palabra(nombre):
     ]
 
     print("\n===== ADIVINA LA PALABRA =====")
-
-opcion_numero = input("Elegí un número del 1 al 10 para tu palabra: ")
+    opcion_numero = input("Elegí un número del 1 al 10 para tu palabra: ")
     
     if opcion_numero in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
         indice = int(opcion_numero) - 1
@@ -89,55 +81,19 @@ opcion_numero = input("Elegí un número del 1 al 10 para tu palabra: ")
 
     intentos = 3
     puntos = 0
-
     print("Pista:", pista)
 
     while intentos > 0:
         respuesta = input("Tu respuesta: ")
-
         if respuesta.lower() == palabra.lower():
             puntos = intentos
             print("¡Correcto!")
             intentos = 0  
         else:
-            intentos = intentos - 1  
+            intentos -= 1  
             if intentos > 0:
                 print("Incorrecto. Te quedan", intentos, "intentos")
 
     print("La palabra era:", palabra)
     print("Puntos obtenidos:", puntos)
     guardar_puntaje(nombre, puntos)
-
-
-
-def menu():
-    print("===================================")
-    print("      PLAY.IN EDUGAMES")
-    print("===================================")
-
-    nombre = input("Ingrese su nombre: ")
-    if nombre == "":
-        nombre = "Jugador"
-
-    opcion = ""
-    while opcion != "0":
-        print("\n")
-        print("1 - Jugar Adivina la Palabra")
-        print("2 - Ver Puntajes")
-        print("3 - Ranking de Jugadores")
-        print("0 - Salir")
-
-        opcion = input("Seleccione una opción: ")
-
-        if opcion == "1":
-            adivina_palabra(nombre)
-        elif opcion == "2":
-            ver_puntajes()
-        elif opcion == "3":
-            ranking_jugadores()
-        elif opcion == "0":
-            print("Gracias por jugar Adivina la Palabra")
-        else:
-            print("Opción incorrecta")
-
-menu()
