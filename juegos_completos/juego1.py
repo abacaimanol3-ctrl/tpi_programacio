@@ -6,6 +6,9 @@ pos_x = 2
 pos_y = 2
 
 turnos = 6
+turnos_l = 0
+puntos = 0
+quest = 0
 
 buf_color = "\033[33m"
 floor = "\033[32m"
@@ -27,9 +30,6 @@ preguntas =[["Que tipo de numero sera el resultado?: n * 2 \n 1_par \n 2_impar \
 llave_p_x = 0
 llave_p_y = 0
 
-
-buf = 0
-
 fails = 1
 
 buf_x = 0
@@ -39,11 +39,13 @@ llave_n_x = 0
 llave_n_y = 0
 
 def gen_buf():
-    global buf_x, buf_y, buf
+    global buf_x, buf_y
 
-    buf = random.randint(0,1)
+    buf = 0
 
-    if buf == 1:
+    buf = random.randint(0,100)
+
+    if buf >= 80:
         buf_x = random.randint(pos_x-3, pos_x+3)
         buf_y = random.randint(pos_y-3, pos_y+3)
 
@@ -55,18 +57,25 @@ def gen_buf():
 gen_buf()
 
 def questions(q, k):
-    global turnos, alto, ancho, fails
+    global turnos, alto, ancho, fails, puntos, quest
 
     print(preguntas[q][0])
     r = input("Ingrese su respuesta: ")
     
     if r == preguntas[q][1]:
         turnos += 7
+        puntos += 1
         extendMap(k)
     
     else:
         fails -= 0.1
         turnos *= fails
+        turnos = int(turnos)
+
+        gen_key("", "", False, False)
+        draw()
+
+    quest += 1
 
     gen_buf()
 
@@ -78,7 +87,7 @@ def extendMap(tipo):
     elif tipo == "n":
         ancho += 5
 
-    gen_key("", "")
+    gen_key("", "", False, False)
     gen_buf()
 
     draw()
@@ -94,7 +103,7 @@ def puzzle(llave):
     questions(pregunta, llave)
 
 
-def gen_key(referencia1, referencia2):
+def gen_key(referencia1, referencia2, key_1, key_2):
     global llave_p_x, llave_p_y, llave_n_x, llave_n_y
 
     if referencia1 == "" and referencia2 == "":
@@ -105,25 +114,27 @@ def gen_key(referencia1, referencia2):
         llave_n_y = random.randint(1, alto-3)
     
     else:
-        llave_p_x = random.randint(referencia1-6, referencia1+6)
-        llave_p_y = random.randint(referencia2-6, referencia2+6)
+        if key_1 == True:
+            llave_p_x = random.randint(referencia1-6, referencia1+6)
+            llave_p_y = random.randint(referencia2-6, referencia2+6)
 
-        llave_n_x = random.randint(referencia1-6, referencia1+6)
-        llave_n_y = random.randint(referencia2-6, referencia2+6)
+        if key_2 == True:
+            llave_n_x = random.randint(referencia1-6, referencia1+6)
+            llave_n_y = random.randint(referencia2-6, referencia2+6)
 
         if (llave_n_x == pos_x and llave_n_y == pos_y) or (llave_p_x == pos_x and llave_p_y == pos_y):
-            gen_key(referencia1, referencia2)
+            gen_key(referencia1, referencia2, key_1, key_2)
             
             return llave_p_x, llave_p_y
 
     if (llave_n_x == pos_x and llave_n_y == pos_y) or (llave_p_x == pos_x and llave_p_y == pos_y):
-        gen_key("", "")
+        gen_key("", "", False, False)
 
     return llave_p_x, llave_p_y
 
 
 def draw():
-    global turnos
+    global turnos, turnos_l
 
     os.system("cls")
     turnos -= 1
@@ -154,11 +165,10 @@ def draw():
                 
         print()
 
-
 def Init():
-    global pos_x, pos_y, turnos
+    global pos_x, pos_y, turnos, alto, ancho, turnos_l
 
-    gen_key("", "")
+    gen_key("", "", False, False)
     draw()
 
     while True:
@@ -167,18 +177,22 @@ def Init():
 
             if key == "w" and pos_y > 0:
                 pos_y -= 1
+                turnos_l += 1
                 draw()
 
             elif key == "s" and pos_y < alto-1:
                 pos_y += 1
+                turnos_l += 1
                 draw()
                 
             elif key == "a" and pos_x > 0:
                 pos_x -= 1
+                turnos_l += 1
                 draw()
                 
             elif key == "d" and pos_x < ancho-1:
                 pos_x += 1
+                turnos_l += 1
                 draw()
 
             elif key == "q":
@@ -195,7 +209,7 @@ def Init():
             op = input("Ingresa tu respuesta aqui: ")
 
             if op == "1":
-                gen_key(pos_x, pos_y)
+                gen_key(pos_x, pos_y, True, True)
                 gen_buf()
                 draw()
             
@@ -203,6 +217,32 @@ def Init():
                 turnos += 10
                 gen_buf()
                 draw()
+
+        elif pos_x == meta_x and pos_y == meta_y:
+            print("En hora buena. Has ganado")
+            nombre = input("Introduce tu nombre aqui: ")
+            estadistica = "Score_" + nombre
+            with open(estadistica + ".txt", "a", encoding="utf-8") as archivo:
+                jugador = f"Jugador: {nombre} \n"
+                turnos_r = f"Turnos restantes: {turnos}\n"
+                movimientos = f"Movimientos: {turnos_l}\n"
+                preg_ac = f"Preguntas acertadas: {puntos}\n"
+                preg_r = f"Preguntas realizadas: {quest}"
+
+                archivo.write(jugador)
+                archivo.write(turnos_r)
+                archivo.write(movimientos)
+                archivo.write(preg_ac)
+                archivo.write(preg_r)
+            break
+
+        if ancho >= 21:
+            ancho = 25
+            gen_key(-100, 0, False, True)
+        
+        if alto >= 21:
+            alto = 25
+            gen_key(-100, 0, True, False)
 
         if turnos <= 0:
             print("Juego acabado")
