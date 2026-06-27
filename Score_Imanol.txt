@@ -1,0 +1,6 @@
+Jugador: Imanol 
+Partidas jugadas: 2 
+Turnos restantes: 12
+Movimientos: 32
+Preguntas acertadas: 5
+Preguntas realizadas: 5
