@@ -10,6 +10,8 @@ turnos_l = 0
 puntos = 0
 quest = 0
 
+runs = 0
+
 buf_color = "\033[33m"
 floor = "\033[32m"
 void = "\033[0m"
@@ -17,14 +19,15 @@ void = "\033[0m"
 alto = 5
 ancho = 5
 
-meta_x = random.randint(11, 22)
+meta_x = random.randint(11, 38)
 meta_y = random.randint(11, 22)
 
 preguntas =[["Que tipo de numero sera el resultado?: n * 2 \n 1_par \n 2_impar \n", "1"], 
             ["Que tipo de numero sera el resultado?: 3 / 2 \n 1_entero \n 2_decimal \n", "2"],
             ["Que tipo de numero sera el resultado?: n<0 \n 1_numero positivo \n 2_numero negativo \n", "2"],
-            ["esto es verdadero?: -2 < 2 \n 1_verdadero \n 2_falso \n", "1"],
-            ["que tipo de numero sera el resultado?: -2 * 2 \n 1_positivo \n 2_negativo \n", "2"]]
+            ["Esto es verdadero?: -2 < 2 \n 1_verdadero \n 2_falso \n", "1"],
+            ["Que tipo de numero sera el resultado?: -2 * 2 \n 1_positivo \n 2_negativo \n", "2"],
+            ["Esto es verdadero?: (-4 < n < -2) n = -3 \n 1_verdadero \n 2_falso ", "1"]]
 
 
 llave_p_x = 0
@@ -38,6 +41,25 @@ buf_y = 0
 llave_n_x = 0
 llave_n_y = 0
 
+def reset():
+    global pos_x, pos_y, turnos, turnos_l, puntos, quest, alto, ancho
+    global meta_x, meta_y, llave_p_x, llave_p_y, fails, buf_x, buf_y, llave_n_x, llave_n_y
+
+    pos_x = 2
+    pos_y = 2
+    turnos = 6
+    turnos_l = 0
+    puntos = 0
+    quest = 0
+    alto = 5
+    ancho = 5
+    fails = 1
+    meta_x = random.randint(11, 22)
+    meta_y = random.randint(11, 22)
+    
+    gen_key("", "", False, False)
+    gen_buf()
+
 def gen_buf():
     global buf_x, buf_y
 
@@ -45,16 +67,19 @@ def gen_buf():
 
     buf = random.randint(0,100)
 
-    if buf >= 80:
+    if buf >= 70:
         buf_x = random.randint(pos_x-3, pos_x+3)
         buf_y = random.randint(pos_y-3, pos_y+3)
+    
+    else:
+        buf_x = -1
+        buf_y = -1
 
     if buf_x == pos_x and buf_y == pos_y:
         gen_buf()
+        return buf_x, buf_y
 
     return buf_x, buf_y
-
-gen_buf()
 
 def questions(q, k):
     global turnos, alto, ancho, fails, puntos, quest
@@ -97,8 +122,7 @@ def extendMap(tipo):
 def puzzle(llave):
     global turnos, alto, ancho
 
-
-    pregunta = random.randint(0,4)
+    pregunta = random.randint(0,5)
 
     questions(pregunta, llave)
 
@@ -166,7 +190,9 @@ def draw():
         print()
 
 def Init():
-    global pos_x, pos_y, turnos, alto, ancho, turnos_l
+    global pos_x, pos_y, turnos, alto, ancho, turnos_l, runs
+
+    reset()
 
     gen_key("", "", False, False)
     draw()
@@ -196,8 +222,22 @@ def Init():
                 draw()
 
             elif key == "q":
+                while True:
+                    print("Estas seguro de querer salir? \n 1_si \n 2_no")
+                    opcion = input("Ingresa una opcion: ")
+
+                    if opcion == "1":
+                        break
+                    elif opcion == "2":
+                        reset()
+                        Init()
+
+                        break
+
+                    else:
+                        print("Opcion no identificada")
+
                 break
-        
         if pos_x == llave_p_x and pos_y == llave_p_y:
             puzzle("p")
 
@@ -221,30 +261,32 @@ def Init():
         elif pos_x == meta_x and pos_y == meta_y:
             print("En hora buena. Has ganado")
             nombre = input("Introduce tu nombre aqui: ")
-            estadistica = "Score_" + nombre
-            with open(estadistica + ".txt", "a", encoding="utf-8") as archivo:
-                jugador = f"Jugador: {nombre} \n"
-                turnos_r = f"Turnos restantes: {turnos}\n"
-                movimientos = f"Movimientos: {turnos_l}\n"
-                preg_ac = f"Preguntas acertadas: {puntos}\n"
-                preg_r = f"Preguntas realizadas: {quest}"
+            estadistica = "Score_" + nombre + ".txt"
 
-                archivo.write(jugador)
-                archivo.write(turnos_r)
-                archivo.write(movimientos)
-                archivo.write(preg_ac)
-                archivo.write(preg_r)
+            with open(estadistica, "w", encoding="utf-8") as archivo:
+                runs += 1
+
+                archivo.write(f"Jugador: {nombre} \n")
+                archivo.write(f"Partidas jugadas: {runs} \n")
+                archivo.write(f"Turnos restantes: {turnos}\n")
+                archivo.write(f"Movimientos: {turnos_l}\n")
+                archivo.write(f"Preguntas acertadas: {puntos}\n")
+                archivo.write(f"Preguntas realizadas: {quest}")
+                
+
+
             break
 
-        if ancho >= 21:
-            ancho = 25
+        if ancho >= 41:
+            ancho = 40
             gen_key(-100, 0, False, True)
         
-        if alto >= 21:
+        if alto >= 26:
             alto = 25
             gen_key(-100, 0, True, False)
 
         if turnos <= 0:
+            runs += 1
             print("Juego acabado")
             break
 

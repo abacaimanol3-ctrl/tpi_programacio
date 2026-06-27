@@ -1,8 +1,8 @@
-from juegos_completos import juego1
 import os
 
 while True:
-    
+    from juegos_completos import juego1
+        
     os.system("cls")
     try:
         print("Juegos disponibles: \n"
