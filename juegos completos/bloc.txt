@@ -74,3 +74,70 @@ def adivina_palabra(nombre):
     ]
 
     print("\n===== ADIVINA LA PALABRA =====")
+
+opcion_numero = input("Elegí un número del 1 al 10 para tu palabra: ")
+    
+    if opcion_numero in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]:
+        indice = int(opcion_numero) - 1
+    else:
+        print("Opción inválida. Te asignamos la palabra número 1.")
+        indice = 0
+
+    elemento_elegido = palabras[indice]
+    palabra = elemento_elegido[0]
+    pista = elemento_elegido[1]
+
+    intentos = 3
+    puntos = 0
+
+    print("Pista:", pista)
+
+    while intentos > 0:
+        respuesta = input("Tu respuesta: ")
+
+        if respuesta.lower() == palabra.lower():
+            puntos = intentos
+            print("¡Correcto!")
+            intentos = 0  
+        else:
+            intentos = intentos - 1  
+            if intentos > 0:
+                print("Incorrecto. Te quedan", intentos, "intentos")
+
+    print("La palabra era:", palabra)
+    print("Puntos obtenidos:", puntos)
+    guardar_puntaje(nombre, puntos)
+
+
+
+def menu():
+    print("===================================")
+    print("      PLAY.IN EDUGAMES")
+    print("===================================")
+
+    nombre = input("Ingrese su nombre: ")
+    if nombre == "":
+        nombre = "Jugador"
+
+    opcion = ""
+    while opcion != "0":
+        print("\n")
+        print("1 - Jugar Adivina la Palabra")
+        print("2 - Ver Puntajes")
+        print("3 - Ranking de Jugadores")
+        print("0 - Salir")
+
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            adivina_palabra(nombre)
+        elif opcion == "2":
+            ver_puntajes()
+        elif opcion == "3":
+            ranking_jugadores()
+        elif opcion == "0":
+            print("Gracias por jugar Adivina la Palabra")
+        else:
+            print("Opción incorrecta")
+
+menu()
